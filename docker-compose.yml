@@ -6,8 +6,8 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      - node.name="es01"
-      - cluster.name="es-docker-cluster"
+      - node.name=es01
+      - cluster.name=es-docker-cluster
       - bootstrap.memory_lock=true
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
