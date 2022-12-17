@@ -1,10 +1,13 @@
 services:
   elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.2'
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
     container_name: es01
+    platform: linux/arm64
     ports:
       - "9200:9200"
       - "9300:9300"
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
@@ -17,15 +20,18 @@ services:
         hard: -1
     healthcheck:
       test: curl -s http://es01:9200 > /dev/null || exit 1
-      interval: 30s
-      timeout: 15s
-      retries: 10
+      interval: 10s
+      timeout: 10s
+      retries: 120
     networks:
       - elastic
 
   kibana:
-    image: 'docker.elastic.co/kibana/kibana:7.9.2'
+    image: docker.elastic.co/kibana/kibana:7.13.4
     container_name: kibana
+    platform: linux/arm64
+    volumes:
+      - kibanadata:/usr/share/kibana/data
     ports:
       - "5601:5601"
     environment:
@@ -33,29 +39,22 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
-    networks:
-      - elastic
-
-  cerebro:
-    image: 'lmenezes/cerebro'
-    container_name: 'cerebro'
-    ports:
-      - "9000:9000"
-    environment:
-      - "CEREBRO_PORT=9000"
-      - "ELASTICSEARCH_HOST=http://es01:9200"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
     networks:
       - elastic
 
 volumes:
-  data01:
+  esdata01:
     driver: local
-  data02:
-    driver: local
-  data03:
+  kibanadata:
     driver: local
 
 networks:
