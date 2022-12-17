@@ -8,11 +8,13 @@ services:
       - "9300:9300"
     volumes:
       - esdata01:/usr/share/elasticsearch/data
+      - ./elastic-book-snapshot/book_backup:/usr/share/elasticsearch/backup
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
       - bootstrap.memory_lock=true
       - discovery.type=single-node
+      - path.repo=backup/search_example,backup/agg_example
       - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
     ulimits:
       memlock:
