@@ -1,0 +1,3 @@
+[submodule "elastic-book-snapshot"]
+	path = elastic-book-snapshot
+	url = https://github.com/javacafe-project/elastic-book-snapshot.git
