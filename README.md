@@ -164,3 +164,53 @@ GET movie_kibana_execute/_search
   }
 }
 ```
+
+### 2.2 Elasticsearch API
+#### 2.2.1 Index managing API
+
+```sh
+PUT /movie
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 2
+  },
+  "mappings": {
+    "properties": {
+      "movieCd": {"type": "integer"},
+      "movieNm": {"type": "text"},
+      "movieNmEn": {"type": "text"},
+      "prdtYear": {"type": "integer"},
+      "openDt": {"type": "date"},
+      "typeNm": {"type": "keyword"},
+      "prdtStatNm": {"type": "keyword"},
+      "nationAlt": {"type": "keyword"},
+      "genreAlt": {"type": "keyword"},
+      "repNationNm": {"type": "keyword"},
+      "repGenreNm": {"type": "keyword"}
+    }
+  }
+}
+```
+
+```json
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "movie"
+}
+```
+Create index
+
+```
+DELETE /movie
+```
+```
+{
+  "acknowledged" : true
+}
+```
+Delete index
+
+> **Warning**
+> This cannot be undone
