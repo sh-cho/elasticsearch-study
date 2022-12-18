@@ -105,6 +105,15 @@ Create snapshot (2) `apache-web-log`
 ```
 Check: http://localhost:9200/_snapshot/apache-web-log/_all?pretty
 
+```sh
+POST _snapshot/javacafe/movie-search/_restore
+POST _snapshot/apache-web-log/default/_restore
+```
+
+(How to restore -> see 6.6 (311p))
+
+`POST _snapshot/{snapshot_name}/{index_name}/_restore`
+
 #### 1.3.2 Setup Kibana
 
 ```sh
@@ -263,7 +272,7 @@ POST /movie/_search?q=typeNm:장편
 ```
 Query with parameter (URI)
 
-```
+```sh
 POST /movie/_search
 {
   "query": {
@@ -292,3 +301,207 @@ Options
 (see more: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html)
 
 #### 2.2.4 Aggregation API
+
+```sh
+POST /movie/_search?size=0
+{
+  "aggs": {
+    "genre": {
+      "terms": {"field": "genreAlt"}
+    }
+  }
+}
+```
+
+### 3.1 Mapping API
+
+#### 3.1.1 Create Mapping index
+```sh
+PUT movie_search
+{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "movieCd": {
+        "type": "keyword"
+      },
+      "movieNm": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "movieNmEn": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "prdtYear": {
+        "type": "integer"
+      },
+      "openDt": {
+        "type": "integer"
+      },
+      "typeNm": {
+        "type": "keyword"
+      },
+      "prdtStatNm": {
+        "type": "keyword"
+      },
+      "nationAlt": {
+        "type": "keyword"
+      },
+      "genreAlt": {
+        "type": "keyword"
+      },
+      "repNationNm": {
+        "type": "keyword"
+      },
+      "repGenreNm": {
+        "type": "keyword"
+      },
+      "companies": {
+        "properties": {
+          "companyCd": {
+            "type": "keyword"
+          },
+          "companyNm": {
+            "type": "keyword"
+          }
+        }
+      },
+      "directors": {
+        "properties": {
+          "peopleNm": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+```
+Create index
+
+```sh
+GET movie_search/_mapping
+```
+```json
+{
+  "movie_search" : {
+    "mappings" : {
+      "properties" : {
+        "companies" : {
+          "properties" : {
+            "companyCd" : {
+              "type" : "keyword"
+            },
+            "companyNm" : {
+              "type" : "keyword"
+            }
+          }
+        },
+        "directors" : {
+          "properties" : {
+            "peopleNm" : {
+              "type" : "keyword"
+            }
+          }
+        },
+        "genreAlt" : {
+          "type" : "keyword"
+        },
+        "movieCd" : {
+          "type" : "keyword"
+        },
+        "movieNm" : {
+          "type" : "text",
+          "analyzer" : "standard"
+        },
+        "movieNmEn" : {
+          "type" : "text",
+          "analyzer" : "standard"
+        },
+        "nationAlt" : {
+          "type" : "keyword"
+        },
+        "openDt" : {
+          "type" : "integer"
+        },
+        "prdtStatNm" : {
+          "type" : "keyword"
+        },
+        "prdtYear" : {
+          "type" : "integer"
+        },
+        "repGenreNm" : {
+          "type" : "keyword"
+        },
+        "repNationNm" : {
+          "type" : "keyword"
+        },
+        "typeNm" : {
+          "type" : "keyword"
+        }
+      }
+    }
+  }
+}
+```
+Get mapping info
+
+[mapping parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html):
+
+- analyzer
+- normalizer
+- boost
+- coerce
+- copy_to
+- ...
+
+### 3.2 Meta fields
+
+#### 3.2.1 `_index`
+
+```sh
+POST movie_search/_search
+{
+ "size":0,
+  "aggs": {
+    "indices": {
+      "terms": {
+        "field": "_index",
+        "size": 10
+      }
+    }
+  }
+}
+```
+```json
+{
+  "took" : 7,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 0,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "indices" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [ ]
+    }
+  }
+}
+```
+
