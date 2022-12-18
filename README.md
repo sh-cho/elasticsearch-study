@@ -17,6 +17,11 @@ docker compose rm  # optional
 ```
 stop, remove
 
+```
+docker compose start
+```
+start after stop
+
 #### url
 
 - ES: http://localhost:9200/
@@ -213,4 +218,77 @@ DELETE /movie
 Delete index
 
 > **Warning**
+>
 > This cannot be undone
+
+#### 2.2.2 document managing API
+
+```sh
+PUT /movie/_doc/1
+{
+  "movieCd": "1",
+  "movieNm": "살아남은 아이",
+  "movieNmEn": "Last Child",
+  "prdtYear": "2017",
+  "openDt": "2017-10-20",
+  "typeNm": "장편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": "드라마,가족",
+  "repNationNm": "한국",
+  "repGenreNm": "드라마"
+}
+```
+
+```json
+{
+  "_index" : "movie",
+  "_type" : "_doc",
+  "_id" : "1",
+  "_version" : 1,
+  "result" : "created",
+  "_shards" : {
+    "total" : 3,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "_seq_no" : 0,
+  "_primary_term" : 1
+}
+```
+Create and set id manually
+
+```
+POST /movie/_search?q=typeNm:장편
+```
+Query with parameter (URI)
+
+```
+POST /movie/_search
+{
+  "query": {
+    "term": {
+      "typeNm": "장편"
+    }
+  }
+}
+```
+Query (Request body)
+
+Options
+- size: How many document? (default: 10)
+- from
+- [fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#search-fields-param): to retrieve specific fields
+  - Response always returns an array
+  - By default, returns only values of mapped fields
+- [_source](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#source-filtering): select what fields of the source are returned.
+  - `false`: document source is not included in the response
+  - `["obj1.*", "obj2.*"]`: specifying fields
+  - > Using `fields` is typically better (as it says)
+- sort
+- query
+- filter
+
+(see more: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html)
+
+#### 2.2.4 Aggregation API
